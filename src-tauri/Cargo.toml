@@ -1,6 +1,6 @@
 [package]
 name = "cambridge"
-version = "0.1.0"
+version = "0.1.1"
 description = "CamBridge: usa la cámara de tu celular como webcam en tu PC (vía LAN) y graba directo a disco"
 authors = ["CamBridge"]
 edition = "2021"
