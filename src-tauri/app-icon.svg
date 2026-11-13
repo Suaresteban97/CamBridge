@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1f2a"/>
+      <stop offset="1" stop-color="#0c0e13"/>
+    </linearGradient>
+  </defs>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bg)"/>
+  <!-- teléfono -->
+  <rect x="210" y="250" width="250" height="460" rx="44" fill="none" stroke="#f2f2f2" stroke-width="36"/>
+  <circle cx="335" cy="420" r="62" fill="none" stroke="#ff5a3c" stroke-width="32"/>
+  <!-- puente -->
+  <path d="M480 480 C 560 400, 620 400, 690 480" fill="none" stroke="#ff5a3c" stroke-width="34" stroke-linecap="round"/>
+  <!-- monitor -->
+  <rect x="600" y="500" width="250" height="180" rx="26" fill="none" stroke="#f2f2f2" stroke-width="36"/>
+  <circle cx="725" cy="590" r="22" fill="#ff5a3c"/>
+</svg>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CamBridge</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ───────────── Panel lateral: conexión + grabación ───────────── -->
+    <aside class="panel" id="panel">
+      <header class="brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <h1>CamBridge</h1>
+      </header>
+
+      <section class="card" id="pair-card">
+        <h2 class="card-title">Conectar celular</h2>
+        <div class="qr-frame">
+          <img id="qr" alt="Código QR para abrir la cámara en el celular" />
+        </div>
+        <p class="hint">Escanea con la cámara del celular (misma red Wi-Fi). Acepta la advertencia de certificado la primera vez.</p>
+        <code class="url" id="url" title="Clic para copiar">—</code>
+        <label class="field" id="iface-field" hidden>
+          <span>Interfaz de red</span>
+          <select id="iface"></select>
+        </label>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">Estado</h2>
+        <dl class="stats">
+          <div><dt>Conexión</dt><dd><span class="pill" id="conn-state" data-state="idle">Esperando celular</span></dd></div>
+          <div><dt>Resolución</dt><dd id="stat-res">—</dd></div>
+          <div><dt>Orientación</dt><dd id="stat-orient">—</dd></div>
+          <div><dt>FPS</dt><dd id="stat-fps">—</dd></div>
+          <div><dt>Bitrate</dt><dd id="stat-bitrate">—</dd></div>
+          <div><dt>Cámara</dt><dd id="stat-camera">—</dd></div>
+        </dl>
+      </section>
+
+      <section class="card rec-card">
+        <h2 class="card-title">Grabación</h2>
+        <button class="rec-btn" id="rec-btn" type="button" disabled>
+          <span class="rec-icon" aria-hidden="true"></span>
+          <span class="rec-label">Grabar</span>
+        </button>
+        <div class="rec-meta">
+          <span id="rec-time">00:00:00</span>
+          <span id="rec-size">0 MB</span>
+        </div>
+        <p class="rec-path" id="rec-path">Se guarda en tu carpeta Videos.</p>
+      </section>
+    </aside>
+
+    <!-- ───────────── Escenario de video ───────────── -->
+    <main class="stage" id="stage" data-orientation="none">
+      <video id="video" autoplay playsinline muted></video>
+
+      <div class="placeholder" id="placeholder">
+        <div class="placeholder-ring" aria-hidden="true"></div>
+        <p>Esperando la señal de video…</p>
+      </div>
+
+      <div class="stage-toolbar">
+        <span class="badge" id="badge-orient" hidden></span>
+        <span class="badge rec-badge" id="badge-rec" hidden>● REC</span>
+        <button class="tool" id="btn-audio" type="button" title="Escuchar audio del celular">🔇</button>
+        <button class="tool" id="btn-panel" type="button" title="Ocultar/mostrar panel">⇤</button>
+        <button class="tool" id="btn-full" type="button" title="Pantalla completa">⛶</button>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <script type="module" src="js/desktop/app.js"></script>
+</body>
+</html>

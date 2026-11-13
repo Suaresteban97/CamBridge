@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>CamBridge · Cámara</title>
+  <link rel="stylesheet" href="css/mobile.css" />
+</head>
+<body>
+  <video id="preview" autoplay playsinline muted></video>
+
+  <!-- Pantalla inicial: el usuario toca para dar permisos de cámara -->
+  <section class="intro" id="intro">
+    <div class="intro-logo" aria-hidden="true"></div>
+    <h1>CamBridge</h1>
+    <p>Tu cámara se transmitirá a la PC por la red local. Nada sale de tu Wi-Fi.</p>
+    <button class="primary" id="btn-start" type="button">Iniciar cámara</button>
+    <p class="intro-error" id="intro-error" hidden></p>
+  </section>
+
+  <!-- Barra superior: estado -->
+  <header class="topbar" hidden id="topbar">
+    <span class="status" id="status" data-state="connecting">Conectando…</span>
+    <span class="chip" id="res-chip">—</span>
+  </header>
+
+  <!-- Controles táctiles -->
+  <nav class="controls" hidden id="controls">
+    <button class="round" id="btn-mic" type="button" aria-label="Micrófono">
+      <span id="mic-icon">🎙️</span>
+    </button>
+
+    <div class="segmented" role="radiogroup" aria-label="Resolución">
+      <button type="button" role="radio" data-quality="720p" aria-checked="true">720p</button>
+      <button type="button" role="radio" data-quality="1080p" aria-checked="false">1080p</button>
+    </div>
+
+    <button class="round" id="btn-flip" type="button" aria-label="Cambiar cámara">⟲</button>
+  </nav>
+
+  <script type="module" src="js/mobile/controls.js"></script>
+</body>
+</html>

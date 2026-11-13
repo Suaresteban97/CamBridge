@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Permisos de la ventana principal: IPC básico y escucha de eventos de señalización.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

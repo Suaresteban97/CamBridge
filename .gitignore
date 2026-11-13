@@ -1,0 +1,9 @@
+prompt.md
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# Sistema
+.DS_Store
+Thumbs.db

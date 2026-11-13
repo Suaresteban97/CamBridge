@@ -1,0 +1,261 @@
+/* ==========================================================================
+   CamBridge · Escritorio
+   Monitor de video oscuro. El video se adapta a 9:16 o 16:9 sin recortes ni
+   deformaciones gracias a `object-fit: contain` dentro de un contenedor flex.
+   ========================================================================== */
+
+:root {
+  --bg: #0b0d12;
+  --panel: #12151c;
+  --card: #181c25;
+  --line: #262b37;
+  --text: #e9ebf1;
+  --muted: #8b92a5;
+  --accent: #ff5a3c;
+  --ok: #3ddc97;
+  --warn: #ffb547;
+  --radius: 14px;
+  --panel-w: 320px;
+  --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 var(--sans);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ---------- Layout ---------- */
+
+.shell {
+  display: flex;
+  height: 100vh;
+}
+
+.panel {
+  flex: 0 0 var(--panel-w);
+  width: var(--panel-w);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+  transition: margin-left .25s ease;
+}
+
+.shell.panel-hidden .panel { margin-left: calc(var(--panel-w) * -1); }
+
+/* ---------- Marca ---------- */
+
+.brand { display: flex; align-items: center; gap: 10px; padding: 2px 4px 6px; }
+.brand h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: .2px; }
+.brand-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255, 90, 60, .18);
+}
+
+/* ---------- Tarjetas ---------- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.card-title {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.qr-frame {
+  background: #fff;
+  border-radius: 12px;
+  padding: 6px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.qr-frame img { width: 100%; height: 100%; image-rendering: pixelated; }
+
+.hint { margin: 10px 0 8px; font-size: 12px; color: var(--muted); }
+
+.url {
+  display: block;
+  font: 12px/1.3 var(--mono);
+  color: var(--text);
+  background: #0f1218;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  word-break: break-all;
+  cursor: copy;
+  user-select: text;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.field select {
+  background: #0f1218; color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 7px 8px; font: inherit;
+}
+
+/* ---------- Estadísticas ---------- */
+
+.stats { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.stats div { min-width: 0; }
+.stats dt { font-size: 11px; color: var(--muted); }
+.stats dd { margin: 2px 0 0; font: 13px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font: 11px var(--sans);
+  background: #252a35;
+  color: var(--muted);
+}
+.pill[data-state="connecting"] { background: rgba(255, 181, 71, .15); color: var(--warn); }
+.pill[data-state="connected"]  { background: rgba(61, 220, 151, .15); color: var(--ok); }
+.pill[data-state="failed"]     { background: rgba(255, 90, 60, .15);  color: var(--accent); }
+
+/* ---------- Grabación ---------- */
+
+.rec-btn {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #222733;
+  color: var(--text);
+  font: 600 14px var(--sans);
+  cursor: pointer;
+  transition: background .15s, transform .05s;
+}
+.rec-btn:hover:not(:disabled) { background: #2a3040; }
+.rec-btn:active:not(:disabled) { transform: scale(.98); }
+.rec-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.rec-icon { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); transition: border-radius .2s; }
+.rec-btn.recording { background: var(--accent); border-color: var(--accent); color: #fff; }
+.rec-btn.recording .rec-icon { background: #fff; border-radius: 3px; }
+
+.rec-meta {
+  display: flex; justify-content: space-between;
+  margin-top: 10px;
+  font: 13px var(--mono);
+  color: var(--muted);
+}
+.rec-path { margin: 8px 0 0; font-size: 11px; color: var(--muted); word-break: break-all; user-select: text; }
+
+/* ---------- Escenario de video ---------- */
+
+.stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 50%, #12151c 0%, #07080b 70%);
+  overflow: hidden;
+}
+
+/* Clave de la adaptabilidad: ocupa todo el espacio disponible y el contenido
+   se escala manteniendo su relación de aspecto (sin recortar ni deformar).
+   Funciona igual para 9:16 (vertical) que para 16:9 (horizontal). */
+.stage video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: transparent;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.stage.live video { opacity: 1; }
+
+/* Pequeño fundido al cambiar de orientación para suavizar el salto. */
+.stage.reflow video { opacity: .25; transition: opacity .12s ease; }
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.stage.live .placeholder { display: none; }
+.placeholder-ring {
+  width: 54px; height: 54px; border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  animation: spin 1.1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.stage-toolbar {
+  position: absolute;
+  top: 14px; right: 14px;
+  display: flex; align-items: center; gap: 8px;
+  opacity: .35;
+  transition: opacity .2s;
+}
+.stage:hover .stage-toolbar { opacity: 1; }
+
+.badge {
+  font: 600 11px var(--mono);
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+.rec-badge { color: #fff; background: var(--accent); animation: blink 1.2s steps(2, start) infinite; }
+@keyframes blink { to { opacity: .55; } }
+
+.tool {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(6px);
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+}
+.tool:hover { background: rgba(255, 255, 255, .12); }
+
+.toast {
+  position: absolute;
+  bottom: 18px; left: 50%;
+  transform: translate(-50%, 20px);
+  max-width: min(560px, 90%);
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #1f2430;
+  border: 1px solid var(--line);
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { border-color: var(--accent); }

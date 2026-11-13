@@ -1,0 +1,49 @@
+[package]
+name = "cambridge"
+version = "0.1.0"
+description = "CamBridge: usa la cámara de tu celular como webcam en tu PC (vía LAN) y graba directo a disco"
+authors = ["CamBridge"]
+edition = "2021"
+rust-version = "1.77"
+
+# La lib permite reutilizar `run()` (patrón estándar de Tauri v2).
+[lib]
+name = "cambridge_lib"
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# --- Núcleo de la app de escritorio ---
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# --- Servidor HTTPS + WebSocket embebido ---
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util", "sync"] }
+axum = { version = "0.8", features = ["ws"] }
+# `tls-rustls-no-provider` evita aws-lc-rs (requiere CMake/NASM en Windows); usamos `ring`.
+axum-server = { version = "0.7", features = ["tls-rustls-no-provider"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+
+# --- Frontend incrustado en el binario (portable) ---
+rust-embed = "8"
+mime_guess = "2"
+
+# --- Red, QR y certificado autofirmado ---
+local-ip-address = "0.6"
+qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+rcgen = "0.13"
+
+# --- Utilidades ---
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+[profile.release]
+# Binario más pequeño y rápido para distribución.
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

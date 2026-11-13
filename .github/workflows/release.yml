@@ -1,0 +1,103 @@
+# Compila instaladores nativos para Windows, macOS (Intel + Apple Silicon) y Linux
+# y los adjunta a un borrador de GitHub Release.
+#
+# Se dispara al empujar un tag `v*` (p. ej. `git tag v0.1.0 && git push --tags`)
+# o manualmente desde la pestaña Actions.
+#
+# Sin Node/NPM: se instala `tauri-cli` como binario de Cargo y tauri-action lo
+# invoca mediante `tauriScript: cargo tauri`.
+
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-x64
+            platform: windows-latest
+            args: ""
+          - name: macos-arm64
+            platform: macos-latest
+            args: "--target aarch64-apple-darwin"
+            rust_target: aarch64-apple-darwin
+          - name: macos-x64
+            platform: macos-latest
+            args: "--target x86_64-apple-darwin"
+            rust_target: x86_64-apple-darwin
+          - name: linux-x64
+            platform: ubuntu-22.04
+            args: ""
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependencias del sistema (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev
+
+      - name: Instalar Rust estable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Caché de Cargo
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
+          key: ${{ matrix.name }}
+
+      - name: Instalar tauri-cli (binario precompilado)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: tauri-cli@2
+
+      - name: Compilar y publicar
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Opcional: firma/notarización en macOS y Windows.
+          # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          # APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          # APPLE_ID: ${{ secrets.APPLE_ID }}
+          # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          tauriScript: cargo tauri
+          projectPath: .
+          args: ${{ matrix.args }}
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || 'v__VERSION__' }}
+          releaseName: "CamBridge v__VERSION__"
+          releaseBody: |
+            Instaladores de CamBridge.
+            - Windows: `.msi` / `-setup.exe`
+            - macOS: `.dmg` (Apple Silicon `aarch64`, Intel `x64`)
+            - Linux: `.AppImage` / `.deb` / `.rpm`
+          releaseDraft: true
+          prerelease: false

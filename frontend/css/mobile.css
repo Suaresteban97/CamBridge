@@ -1,0 +1,176 @@
+/* ==========================================================================
+   CamBridge · Celular
+   Interfaz mínima a pantalla completa, controles grandes al alcance del pulgar.
+   ========================================================================== */
+
+:root {
+  --accent: #ff5a3c;
+  --ok: #3ddc97;
+  --warn: #ffb547;
+  --glass: rgba(18, 20, 26, .62);
+  --line: rgba(255, 255, 255, .14);
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font: 15px/1.4 var(--sans);
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+[hidden] { display: none !important; }
+
+/* Vista previa local a pantalla completa (sin recortes: contain). */
+#preview {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+#preview.mirror { transform: scaleX(-1); }
+
+/* ---------- Pantalla de inicio ---------- */
+
+.intro {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
+  text-align: center;
+  background: radial-gradient(circle at 50% 30%, #1b1f2a, #000 70%);
+}
+.intro h1 { margin: 0; font-size: 26px; font-weight: 700; }
+.intro p { margin: 0; max-width: 320px; color: #a6acbb; }
+.intro-logo {
+  width: 72px; height: 72px; border-radius: 22px;
+  background: var(--accent);
+  box-shadow: 0 0 0 10px rgba(255, 90, 60, .15);
+  margin-bottom: 8px;
+}
+.intro-error { color: var(--accent) !important; font-size: 14px; }
+
+.primary {
+  margin-top: 12px;
+  min-width: 220px;
+  padding: 16px 24px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #fff;
+  font: 600 17px var(--sans);
+}
+.primary:active { transform: scale(.97); }
+.primary:disabled { opacity: .5; }
+
+/* ---------- Barra superior ---------- */
+
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc(12px + env(safe-area-inset-top)) 14px 12px;
+  pointer-events: none;
+}
+
+.status, .chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 600;
+}
+.status::before {
+  content: "";
+  display: inline-block;
+  width: 8px; height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--warn);
+  vertical-align: 1px;
+}
+.status[data-state="live"]::before { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.status[data-state="error"]::before { background: var(--accent); }
+.chip { font-family: ui-monospace, Menlo, monospace; font-weight: 500; }
+
+/* ---------- Controles ---------- */
+
+.controls {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px calc(22px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(0, 0, 0, .7), transparent);
+}
+
+.round {
+  width: 58px; height: 58px;
+  flex: 0 0 58px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 24px;
+  display: grid;
+  place-items: center;
+}
+.round:active { transform: scale(.94); }
+.round.off { background: rgba(255, 90, 60, .85); }
+.round:disabled { opacity: .5; }
+
+.segmented {
+  display: flex;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+}
+.segmented button {
+  min-width: 74px;
+  padding: 12px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #c9ced9;
+  font: 600 15px var(--sans);
+}
+.segmented button[aria-checked="true"] { background: #fff; color: #000; }
+.segmented button:disabled { opacity: .5; }
+
+/* En horizontal, los controles pasan a una columna lateral para no tapar el encuadre. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .controls {
+    top: 0; bottom: 0; left: auto;
+    width: auto;
+    flex-direction: column;
+    justify-content: center;
+    padding: 16px calc(16px + env(safe-area-inset-right)) 16px 16px;
+    background: linear-gradient(to left, rgba(0, 0, 0, .7), transparent);
+  }
+  .segmented { flex-direction: column; }
+}
