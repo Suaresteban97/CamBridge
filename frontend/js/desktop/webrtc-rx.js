@@ -25,12 +25,16 @@ export class WebRtcReceiver {
    * @param {(stream: MediaStream) => void}  opts.onStream    hay video entrante
    * @param {(state: string) => void}        opts.onState     idle|connecting|connected|failed
    * @param {(status: object) => void}       opts.onRemoteStatus  info de cámara del celular
+   * @param {(stats: object) => void}        [opts.onSenderStats] lo que el celular está codificando
+   * @param {(hq: object) => void}           [opts.onHq] estado de la grabación HQ en el celular
    */
-  constructor({ sendSignal, onStream, onState, onRemoteStatus }) {
+  constructor({ sendSignal, onStream, onState, onRemoteStatus, onSenderStats, onHq }) {
     this.sendSignal = sendSignal;
     this.onStream = onStream;
     this.onState = onState;
     this.onRemoteStatus = onRemoteStatus;
+    this.onSenderStats = onSenderStats;
+    this.onHq = onHq;
   }
 
   /** Procesa un mensaje de señalización proveniente del celular. */
@@ -48,6 +52,12 @@ export class WebRtcReceiver {
         break;
       case 'status':
         this.onRemoteStatus(msg);
+        break;
+      case 'stats':
+        this.onSenderStats?.(msg);
+        break;
+      case 'hq':
+        this.onHq?.(msg);
         break;
       case 'bye':
       case 'peer-left':

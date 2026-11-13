@@ -6,13 +6,17 @@
 
 pub mod http;
 pub mod network;
+pub mod security;
 pub mod signaling;
 pub mod tls;
 
 use std::net::{SocketAddr, TcpListener};
+use std::sync::Arc;
 
 use serde::Serialize;
 use tauri::{AppHandle, Manager};
+
+use crate::storage::hq::HqRecorder;
 
 pub use network::Endpoint;
 pub use signaling::SignalingHub;
@@ -46,14 +50,16 @@ pub fn start(app: &AppHandle) -> Result<(ServerInfo, SignalingHub), Box<dyn std:
     listener.set_nonblocking(true)?;
     let port = listener.local_addr()?.port();
 
-    // 4) URLs + QR por cada interfaz.
-    let endpoints = network::build_endpoints(&ips, port)?;
+    // 4) Token de emparejamiento (nuevo en cada arranque) + URLs y QR por interfaz.
+    let token = security::generate_token()?;
+    let endpoints = network::build_endpoints(&ips, port, &token)?;
 
-    // 5) Hub de señalización y arranque del servidor.
+    // 5) Hub de señalización, grabador HQ y arranque del servidor.
     let hub = SignalingHub::new(app.clone());
-    let server_hub = hub.clone();
+    let hq = HqRecorder::new(app.clone(), crate::storage::recordings_dir(app)?);
+    let state = http::ServerState { hub: hub.clone(), token: token.into(), hq: Arc::new(hq) };
     tauri::async_runtime::spawn(async move {
-        if let Err(err) = http::serve(listener, tls, server_hub).await {
+        if let Err(err) = http::serve(listener, tls, state).await {
             eprintln!("[cambridge] el servidor HTTPS se detuvo: {err}");
         }
     });

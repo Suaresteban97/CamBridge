@@ -54,11 +54,11 @@ pub fn lan_ipv4_candidates() -> Vec<(String, Ipv4Addr)> {
     out
 }
 
-/// Construye la URL HTTPS y su QR para cada IP.
-pub fn build_endpoints(ips: &[(String, Ipv4Addr)], port: u16) -> Result<Vec<Endpoint>, String> {
+/// Construye la URL HTTPS (con el token de emparejamiento) y su QR para cada IP.
+pub fn build_endpoints(ips: &[(String, Ipv4Addr)], port: u16, token: &str) -> Result<Vec<Endpoint>, String> {
     ips.iter()
         .map(|(iface, ip)| {
-            let url = format!("https://{ip}:{port}/");
+            let url = format!("https://{ip}:{port}/?t={token}");
             Ok(Endpoint {
                 ip: ip.to_string(),
                 interface: iface.clone(),

@@ -9,10 +9,21 @@
  */
 
 const TIMESLICE_MS = 3000;
-const VIDEO_BITRATE = 8_000_000;
+/** 16 Mbps: holgado para 1080p30 (YouTube recomienda 8-12 Mbps para subir 1080p). */
+const VIDEO_BITRATE = 16_000_000;
+const AUDIO_BITRATE = 192_000;
 
-/** Formatos en orden de preferencia. WebView2 (Windows) → WebM; WKWebView (macOS) → MP4. */
+/**
+ * Formatos en orden de preferencia.
+ * 1. MP4/H.264: lo que mejor aceptan YouTube y los editores (Premiere, DaVinci,
+ *    CapCut), y Chromium lo codifica por hardware en Windows. Se escribe como MP4
+ *    fragmentado, así que también sobrevive a un cierre inesperado.
+ * 2. WebM (VP9/VP8) como respaldo si el WebView no soporta MP4.
+ */
 const FORMATS = [
+  { mimeType: 'video/mp4;codecs=avc1.640028,mp4a.40.2', ext: 'mp4' },
+  { mimeType: 'video/mp4;codecs=avc1,mp4a.40.2', ext: 'mp4' },
+  { mimeType: 'video/mp4;codecs=avc1,opus', ext: 'mp4' },
   { mimeType: 'video/webm;codecs=vp9,opus', ext: 'webm' },
   { mimeType: 'video/webm;codecs=vp8,opus', ext: 'webm' },
   { mimeType: 'video/webm;codecs=vp9', ext: 'webm' },
@@ -64,11 +75,18 @@ export class StreamRecorder {
     // Graba solo pistas vivas; si el celular no envía audio, solo video.
     const tracks = stream.getTracks().filter((t) => t.readyState === 'live');
     const recStream = new MediaStream(tracks);
-    const mimeType = recStream.getAudioTracks().length ? fmt.mimeType : fmt.mimeType.replace(/,opus$/, '');
+    // Sin audio: se quita el códec de audio del mimeType.
+    const mimeType = recStream.getAudioTracks().length
+      ? fmt.mimeType
+      : fmt.mimeType.replace(/,(opus|mp4a[^,]*)$/, '');
 
     const info = await this.invoke('start_recording', { extension: fmt.ext });
 
-    const mr = new MediaRecorder(recStream, { mimeType, videoBitsPerSecond: VIDEO_BITRATE });
+    const mr = new MediaRecorder(recStream, {
+      mimeType,
+      videoBitsPerSecond: VIDEO_BITRATE,
+      audioBitsPerSecond: AUDIO_BITRATE,
+    });
     this.#mr = mr;
     this.#queue = Promise.resolve();
     this.#stopping = false;

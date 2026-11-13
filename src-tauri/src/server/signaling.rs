@@ -11,16 +11,20 @@
 //!
 //! Solo se admite un celular a la vez: una conexión nueva reemplaza a la anterior.
 
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
 use axum::{
     extract::{
         ws::{Message, WebSocket, WebSocketUpgrade},
-        State,
+        Query, State,
     },
-    response::Response,
+    http::StatusCode,
+    response::{IntoResponse, Response},
 };
+
+use super::http::ServerState;
 use futures_util::{SinkExt, StreamExt};
 use serde_json::{json, Value};
 use tauri::{AppHandle, Emitter};
@@ -91,9 +95,23 @@ impl SignalingHub {
     }
 }
 
-/// Handler de axum para `/ws`.
-pub async fn ws_handler(ws: WebSocketUpgrade, State(hub): State<SignalingHub>) -> Response {
-    ws.on_upgrade(move |socket| handle_socket(socket, hub))
+/// Tamaño máximo de un mensaje de señalización (un SDP ronda 5-10 KB).
+const MAX_MESSAGE_BYTES: usize = 64 * 1024;
+
+/// Handler de axum para `/ws`. Exige el token de emparejamiento (`?t=`).
+pub async fn ws_handler(
+    ws: WebSocketUpgrade,
+    State(state): State<ServerState>,
+    Query(query): Query<HashMap<String, String>>,
+) -> Response {
+    if !state.authorized(&query) {
+        eprintln!("[security] WebSocket rechazado: token inválido");
+        return (StatusCode::FORBIDDEN, "403 · token inválido").into_response();
+    }
+    let hub = state.hub.clone();
+    ws.max_message_size(MAX_MESSAGE_BYTES)
+        .max_frame_size(MAX_MESSAGE_BYTES)
+        .on_upgrade(move |socket| handle_socket(socket, hub))
 }
 
 async fn handle_socket(socket: WebSocket, hub: SignalingHub) {

@@ -23,6 +23,7 @@
   <!-- Barra superior: estado -->
   <header class="topbar" hidden id="topbar">
     <span class="status" id="status" data-state="connecting">Conectando…</span>
+    <button class="chip rec-toggle" id="btn-rec" type="button" aria-label="Grabar en alta calidad">● HQ</button>
     <span class="chip" id="res-chip">—</span>
   </header>
 
@@ -33,9 +34,14 @@
     </button>
 
     <div class="segmented" role="radiogroup" aria-label="Resolución">
-      <button type="button" role="radio" data-quality="720p" aria-checked="true">720p</button>
-      <button type="button" role="radio" data-quality="1080p" aria-checked="false">1080p</button>
+      <button type="button" role="radio" data-quality="720p" aria-checked="false">720p</button>
+      <button type="button" role="radio" data-quality="1080p" aria-checked="true">1080p</button>
     </div>
+
+    <button class="round rotate" id="btn-rotate" type="button" aria-label="Girar imagen 90°">
+      <span aria-hidden="true">↻</span>
+      <small id="rotate-label">0°</small>
+    </button>
 
     <button class="round" id="btn-flip" type="button" aria-label="Cambiar cámara">⟲</button>
   </nav>

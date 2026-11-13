@@ -37,11 +37,23 @@
           <div><dt>FPS</dt><dd id="stat-fps">—</dd></div>
           <div><dt>Bitrate</dt><dd id="stat-bitrate">—</dd></div>
           <div><dt>Cámara</dt><dd id="stat-camera">—</dd></div>
+          <div><dt>Códec</dt><dd id="stat-codec">—</dd></div>
+          <div><dt>Limitado por</dt><dd id="stat-limit">—</dd></div>
+          <div><dt>FPS cámara</dt><dd id="stat-camfps">—</dd></div>
+          <div><dt>Red estimada</dt><dd id="stat-bw">—</dd></div>
+          <div><dt>Codificador</dt><dd id="stat-encoder">—</dd></div>
+          <div><dt>Pérdida · RTT</dt><dd id="stat-loss">—</dd></div>
+          <div class="wide"><dt>Transporte</dt><dd id="stat-transport">—</dd></div>
         </dl>
       </section>
 
       <section class="card rec-card">
         <h2 class="card-title">Grabación</h2>
+        <div class="mode-switch" role="radiogroup" aria-label="Modo de grabación">
+          <button type="button" role="radio" data-mode="hq" aria-checked="true">Alta calidad</button>
+          <button type="button" role="radio" data-mode="stream" aria-checked="false">Transmisión</button>
+        </div>
+        <p class="mode-hint" id="mode-hint"></p>
         <button class="rec-btn" id="rec-btn" type="button" disabled>
           <span class="rec-icon" aria-hidden="true"></span>
           <span class="rec-label">Grabar</span>

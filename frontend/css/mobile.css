@@ -111,6 +111,18 @@ html, body {
 .status[data-state="error"]::before { background: var(--accent); }
 .chip { font-family: ui-monospace, Menlo, monospace; font-weight: 500; }
 
+/* Botón de grabación HQ (en la barra superior, que por lo demás no recibe toques). */
+.rec-toggle {
+  pointer-events: auto;
+  color: #fff;
+  font: 700 13px var(--sans);
+  cursor: pointer;
+}
+.rec-toggle[data-state="recording"] { background: var(--accent); border-color: var(--accent); }
+.rec-toggle[data-state="finishing"],
+.rec-toggle[data-state="starting"] { background: rgba(255, 181, 71, .85); color: #000; }
+.rec-toggle:disabled { opacity: .5; }
+
 /* ---------- Controles ---------- */
 
 .controls {
@@ -138,6 +150,11 @@ html, body {
   place-items: center;
 }
 .round:active { transform: scale(.94); }
+
+/* Botón de giro manual: muestra los grados aplicados debajo del icono. */
+.round.rotate { display: flex; flex-direction: column; gap: 0; line-height: 1; }
+.round.rotate small { font-size: 10px; font-weight: 600; opacity: .8; margin-top: 2px; }
+.round.rotate.active { background: #fff; color: #000; }
 .round.off { background: rgba(255, 90, 60, .85); }
 .round:disabled { opacity: .5; }
 
