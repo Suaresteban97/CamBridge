@@ -47,19 +47,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+      # Lista oficial de Tauri v2. Se usa libayatana-appindicator3-dev: la variante
+      # antigua (libappindicator3-dev) entra en conflicto con la preinstalada en el
+      # runner y hace fallar apt (exit code 100). GStreamer solo se necesita en
+      # tiempo de ejecución (está en bundle.linux.deb.depends), no para compilar.
       - name: Dependencias del sistema (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            file \
             libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
             librsvg2-dev \
-            patchelf \
-            libgstreamer1.0-dev \
-            libgstreamer-plugins-base1.0-dev
+            patchelf
 
       - name: Instalar Rust estable
         uses: dtolnay/rust-toolchain@stable
